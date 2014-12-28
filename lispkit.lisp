@@ -22,6 +22,7 @@
   "Main exists separately from do-main so that during development we
   can easily separate killing the main gtk loop from stopping and
   starting applications within that main loop"
+  (load-rc-file)
   (within-main-loop
     (let* ((ui      (load-ui-from-string +ui-builder-file+))
            (window  (gtk:gtk-builder-get-object ui "mainwindow"))
@@ -44,13 +45,12 @@
                           (lambda (widget)
                             (declare (ignore widget))
                             (stop-modeline)
+                            (save-history browser)
                             (leave-gtk-main))))
       (load-url *default-page* browser)
       (setf *default-browser* browser)
       (gtk-widget-hide entry)
       (ensure-cookies-folder-exists *cookie-path-dir*)
-      ;; TODO - Add error handling to this.
-      (load-rc-file)
       (gtk-window-maximize window)
       (gtk:gtk-container-add c-area lbl)
       (dolist (widget (list window frame view ib lbl))
